@@ -22,15 +22,15 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Check if Docker Compose is available
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo -e "${RED}❌ Docker Compose is not installed${NC}"
-    echo "Please install Docker Compose first"
+if ! docker compose version &> /dev/null; then
+    echo -e "${RED}❌ Docker Compose plugin is not installed${NC}"
+    echo "Please run: ./fix-docker.sh to install Docker Compose plugin"
     exit 1
 fi
 
 echo -e "${BLUE}📋 System Check:${NC}"
 echo "Docker: $(docker --version)"
-echo "Docker Compose: $(docker-compose --version 2>/dev/null || docker compose version 2>/dev/null)"
+echo "Docker Compose: $(docker compose version)"
 echo ""
 
 # Get public IP
@@ -136,14 +136,10 @@ echo "This may take 5-10 minutes for the first build..."
 echo ""
 
 # Stop any existing containers
-docker-compose down 2>/dev/null || docker compose down 2>/dev/null
+docker compose down 2>/dev/null
 
 # Build and start
-if command -v docker-compose &> /dev/null; then
-    docker-compose up --build -d
-else
-    docker compose up --build -d
-fi
+docker compose up --build -d
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -160,11 +156,11 @@ if [ $? -eq 0 ]; then
     echo "Password: admin123"
     echo ""
     echo -e "${BLUE}🛠️  Management Commands:${NC}"
-    echo "docker-compose logs -f           # View logs"
-    echo "docker-compose restart          # Restart services"
-    echo "docker-compose down             # Stop services"
-    echo "docker-compose up -d            # Start services"
-    echo "docker-compose ps               # Check status"
+    echo "docker compose logs -f          # View logs"
+    echo "docker compose restart          # Restart services"
+    echo "docker compose down             # Stop services"
+    echo "docker compose up -d            # Start services"
+    echo "docker compose ps               # Check status"
     echo ""
     echo -e "${BLUE}🚀 Next Steps:${NC}"
     echo "1. Open http://$PUBLIC_IP in your browser"
@@ -182,8 +178,8 @@ if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ All services are running and healthy!${NC}"
     else
         echo -e "${YELLOW}⚠️  Services may still be starting up...${NC}"
-        echo "Check status with: docker-compose ps"
-        echo "View logs with: docker-compose logs -f"
+        echo "Check status with: docker compose ps"
+        echo "View logs with: docker compose logs -f"
     fi
     
     echo ""
@@ -191,6 +187,6 @@ if [ $? -eq 0 ]; then
 else
     echo ""
     echo -e "${RED}❌ Deployment failed${NC}"
-    echo "Check the logs with: docker-compose logs"
+    echo "Check the logs with: docker compose logs"
     exit 1
 fi

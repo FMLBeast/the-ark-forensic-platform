@@ -1,11 +1,16 @@
 # 🌟 The Ark - Advanced Forensic Investigation Platform
 
-A sophisticated Matrix-themed forensic investigation platform designed for collaborative puzzle-solving and multi-vector steganographic analysis. Built with React 18, TypeScript, and modern web technologies.
+[![GitHub Repository](https://img.shields.io/badge/GitHub-the--ark--forensic--platform-blue?logo=github)](https://github.com/FMLBeast/the-ark-forensic-platform)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/FMLBeast/the-ark-forensic-platform/workflows/CI/badge.svg)](https://github.com/FMLBeast/the-ark-forensic-platform/actions)
+
+A sophisticated forensic investigation platform with **real agent orchestration** for collaborative analysis and multi-vector forensic investigation. Features actual steganography detection, cryptography analysis, and intelligence synthesis with a modern Matrix-themed interface.
 
 ![The Ark Platform](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![React](https://img.shields.io/badge/React-18.2.0-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![Vite](https://img.shields.io/badge/Vite-5.4-purple)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green)
+![Express](https://img.shields.io/badge/Express-4.18-lightgrey)
 
 ---
 
@@ -18,12 +23,13 @@ A sophisticated Matrix-themed forensic investigation platform designed for colla
 - **Collaborative Progress Tracking** with sub-challenge breakdown
 - **Real-time Status Updates** and agent assignment
 
-### **🤖 AI Agent Orchestration**
-- **Multi-Agent Framework** with specialized forensic capabilities
-- **LangChain Integration** for advanced pattern analysis  
-- **GOAT Agent** with emergency code generation and execution
-- **Automated Discovery Agents** for XOR, bitplane, and pattern analysis
-- **Real-time Agent Dashboard** with performance monitoring
+### **🤖 Real Agent Orchestration**
+- **Multi-Agent Framework** with actual forensic analysis capabilities
+- **File Analysis Agent** - Shannon entropy, metadata extraction, file type detection
+- **Steganography Agent** - LSB analysis, zsteg/steghide integration
+- **Cryptography Agent** - XOR cipher analysis, Base64 detection, frequency analysis
+- **Intelligence Agent** - Pattern synthesis, cross-correlation, recommendation generation
+- **Real-time Analysis** with progress tracking and result storage
 
 ### **💬 Collaborative Features**
 - **Live Chat System** with multi-room support
@@ -42,6 +48,14 @@ A sophisticated Matrix-themed forensic investigation platform designed for colla
 - **HUD-style Interface** with scanline effects and animations
 - **Matrix Color Scheme** with customizable themes
 - **Smooth Transitions** using Framer Motion
+
+### **🔧 Backend Architecture**
+- **Node.js/Express API** with comprehensive endpoints
+- **SQLite Database** with full forensic data schema
+- **JWT Authentication** with role-based access control
+- **WebSocket Support** for real-time updates
+- **File Upload Security** with validation and sanitization
+- **Rate Limiting & CORS** protection
 
 ---
 
@@ -292,11 +306,21 @@ Demonstrates advanced AI orchestration:
 
 ## 🤝 **Contributing**
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+**Quick Start for Contributors:**
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+**Areas needing help:**
+- Additional forensic analysis agents
+- Performance optimizations
+- UI/UX improvements
+- Documentation
+- Test coverage
 
 ---
 
@@ -325,4 +349,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Ready to dive into the matrix of forensic investigation and collaborative puzzle-solving. Your sophisticated steganographic ARG platform is ready for deployment!
 
-**[🚀 Deploy Now](DEPLOYMENT_GUIDE.md)** | **[📖 View Demo](https://your-demo-url.com)** | **[💬 Get Support](https://github.com/your-repo/issues)**
+**[🚀 Deploy Now](DEPLOYMENT_GUIDE.md)** | **[📖 GitHub Repository](https://github.com/FMLBeast/the-ark-forensic-platform)** | **[💬 Get Support](https://github.com/FMLBeast/the-ark-forensic-platform/issues)**

@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-matrix-800;
+  }
+  
+  body {
+    @apply bg-bg-primary text-matrix-500 font-hud;
+    @apply antialiased;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Matrix terminal-style input */
+  .matrix-input {
+    @apply bg-bg-panel border border-matrix-700 rounded-lg px-4 py-2;
+    @apply text-matrix-500 font-mono;
+    @apply focus:outline-none focus:ring-2 focus:ring-matrix-500 focus:border-transparent;
+    @apply placeholder:text-matrix-800;
+  }
+  
+  /* Matrix button styles */
+  .matrix-btn {
+    @apply px-4 py-2 rounded-lg font-mono;
+    @apply transition-all duration-200;
+    @apply border border-matrix-700;
+    @apply hover:border-matrix-500 hover:shadow-matrix;
+  }
+  
+  .matrix-btn-primary {
+    @apply matrix-btn bg-matrix-500/10 text-matrix-500;
+    @apply hover:bg-matrix-500/20;
+  }
+  
+  .matrix-btn-secondary {
+    @apply matrix-btn bg-bg-panel text-matrix-600;
+    @apply hover:text-matrix-500;
+  }
+  
+  /* HUD panel */
+  .hud-panel {
+    @apply bg-bg-panel/80 backdrop-blur-sm;
+    @apply border border-matrix-700/50 rounded-lg;
+    @apply shadow-lg;
+  }
+  
+  /* Status indicators */
+  .status-indicator {
+    @apply flex items-center gap-2 text-sm font-mono;
+  }
+  
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  
+  .status-connected {
+    @apply status-dot bg-status-success animate-pulse;
+  }
+  
+  .status-warning {
+    @apply status-dot bg-status-warning animate-pulse;
+  }
+  
+  .status-error {
+    @apply status-dot bg-status-error animate-pulse;
+  }
+  
+  /* Matrix table */
+  .matrix-table {
+    @apply w-full font-mono text-sm;
+  }
+  
+  .matrix-table th {
+    @apply px-4 py-2 text-left border-b border-matrix-700;
+    @apply text-matrix-400 font-semibold;
+  }
+  
+  .matrix-table td {
+    @apply px-4 py-2 border-b border-matrix-800;
+    @apply text-matrix-600;
+  }
+  
+  .matrix-table tr:hover td {
+    @apply bg-matrix-500/5 text-matrix-500;
+  }
+  
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-bg-secondary;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-matrix-700 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-matrix-600;
+  }
+  
+  /* Navigation */
+  .nav-link {
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg;
+    @apply text-matrix-600 hover:text-matrix-500;
+    @apply transition-colors duration-200;
+    @apply font-mono text-sm;
+  }
+  
+  .nav-link.active {
+    @apply text-matrix-500 bg-matrix-500/10;
+    @apply border border-matrix-700;
+  }
+  
+  /* Card components */
+  .matrix-card {
+    @apply hud-panel p-6;
+  }
+  
+  .matrix-card-header {
+    @apply flex items-center justify-between mb-4;
+  }
+  
+  .matrix-card-title {
+    @apply text-lg font-semibold text-matrix-500 font-mono;
+  }
+  
+  /* Loading states */
+  .loading-dots::after {
+    content: '';
+    animation: loading-dots 1.5s infinite;
+  }
+  
+  @keyframes loading-dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+  }
+  
+  /* Matrix animations */
+  .matrix-flicker {
+    animation: flicker 0.15s infinite linear alternate;
+  }
+  
+  @keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+  }
+}

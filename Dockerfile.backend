@@ -1,0 +1,40 @@
+# The Ark - Backend Dockerfile
+FROM node:18-alpine
+
+# Install system dependencies for forensic tools
+RUN apk add --no-cache \
+    sqlite \
+    curl \
+    file \
+    exiftool \
+    && rm -rf /var/cache/apk/*
+
+# Create app directory
+WORKDIR /app
+
+# Copy backend package files
+COPY backend/package*.json ./backend/
+COPY package*.json ./
+
+# Install dependencies
+RUN cd backend && npm ci --only=production
+
+# Copy backend source code
+COPY backend/src ./backend/src
+COPY backend/.env.example ./backend/.env
+
+# Create necessary directories
+RUN mkdir -p data uploads logs
+
+# Set permissions
+RUN chmod 755 data uploads logs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Start the backend
+CMD ["node", "backend/src/app.js"]

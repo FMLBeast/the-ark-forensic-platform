@@ -1,17 +1,17 @@
 # 🚀 The Ark - Vast.ai Deployment Guide
 
-## Quick Setup for Vast.ai GPU Instances
+## Complete Full-Stack Deployment for Vast.ai
 
 ### 🎯 **Step 1: Create Vast.ai Instance**
 
 1. Go to https://vast.ai/console/create/
 2. **Recommended specs**:
-   - **GPU**: Any (CPU-only is fine for this app)
-   - **RAM**: 8GB+ recommended  
-   - **Disk**: 20GB+ 
-   - **Image**: `pytorch/pytorch:latest` or `ubuntu:20.04`
-3. **Open ports**: 22 (SSH), 80 (HTTP), 443 (HTTPS)
-4. **Instance type**: On-demand or Interruptible
+   - **GPU**: Any (CPU-only is sufficient)
+   - **RAM**: 8GB+ recommended for full stack  
+   - **Disk**: 30GB+ (includes backend, database, uploads)
+   - **Image**: `ubuntu:20.04` or `ubuntu:22.04`
+3. **Open ports**: 22 (SSH), 80 (HTTP), 443 (HTTPS), 3000 (Backend API)
+4. **Instance type**: On-demand (recommended for production)
 
 ### 🔧 **Step 2: Connect to Instance**
 
@@ -20,55 +20,57 @@
 ssh root@[INSTANCE_IP] -p [SSH_PORT]
 ```
 
-### 📦 **Step 3: Upload Application**
+### 🚀 **Step 3: Run Automated Full-Stack Setup**
 
-**Option A: SCP Upload (Recommended)**
-```bash
-# From your local machine, upload the entire project
-scp -P [SSH_PORT] -r /home/beast/dev/ark_react root@[INSTANCE_IP]:/opt/the-ark
-```
-
-**Option B: Git Clone**
-```bash
-# On the instance, clone your repository
-cd /opt
-git clone [YOUR_GITHUB_REPO] the-ark
-```
-
-**Option C: Vast.ai File Manager**
-1. Use Vast.ai web interface file manager
-2. Upload files to `/opt/the-ark/`
-
-### 🚀 **Step 4: Run Automated Setup**
-
+**Option A: Direct GitHub Clone (Recommended)**
 ```bash
 # SSH to your instance
 ssh root@[INSTANCE_IP] -p [SSH_PORT]
 
-# Navigate to app directory
+# Download and run the setup script
+curl -fsSL https://raw.githubusercontent.com/FMLBeast/the-ark-forensic-platform/main/scripts/vast-ai-full-setup.sh -o setup.sh
+chmod +x setup.sh
+./setup.sh
+```
+
+**Option B: Manual Upload + Setup**
+```bash
+# From your local machine, upload the project
+scp -P [SSH_PORT] -r /path/to/ark_react root@[INSTANCE_IP]:/opt/the-ark
+
+# SSH to instance and run setup
+ssh root@[INSTANCE_IP] -p [SSH_PORT]
 cd /opt/the-ark
-
-# Make setup script executable
-chmod +x vast-ai-setup.sh
-
-# Run the automated setup
-./vast-ai-setup.sh
+chmod +x scripts/vast-ai-full-setup.sh
+./scripts/vast-ai-full-setup.sh
 ```
 
-The script will:
-- ✅ Install Node.js 18, Nginx, Docker
-- ✅ Install application dependencies
+The automated setup will:
+- ✅ Install Node.js 18, PM2, Nginx, SQLite
+- ✅ Install forensic tools (exiftool, file, steghide, zsteg)
+- ✅ Clone latest code from GitHub
+- ✅ Install frontend and backend dependencies
 - ✅ Build The Ark frontend
-- ✅ Configure Nginx for production
-- ✅ Set up firewall rules
-- ✅ Start all services
+- ✅ Configure environment variables
+- ✅ Set up database and file storage
+- ✅ Configure Nginx with API proxy
+- ✅ Start backend with PM2 process manager
+- ✅ Set up firewall and security
+- ✅ Create management scripts
 
-### 🌐 **Step 5: Access Your Application**
+### 🌐 **Step 4: Access Your Application**
 
-After setup completes:
+After setup completes, you'll have access to:
 ```
-🌟 Your application is live at: http://[INSTANCE_IP]
+🌐 Frontend:     http://[INSTANCE_IP]
+🔧 Backend API:  http://[INSTANCE_IP]/api
+💓 Health Check: http://[INSTANCE_IP]/health
+🔌 WebSocket:    ws://[INSTANCE_IP]/ws
 ```
+
+**Default Login Credentials:**
+- Username: `admin`
+- Password: `admin123`
 
 ---
 
@@ -77,21 +79,30 @@ After setup completes:
 Once deployed, use these commands on your instance:
 
 ```bash
-# Check application status
+# Check full application status
 ark-status
 
-# Update application (if using git)
-update-ark
+# Restart all services
+ark-restart
 
-# Restart web server
-sudo systemctl restart nginx
+# View application logs
+ark-logs
 
-# View logs
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
+# Update from GitHub
+ark-update
 
-# Check disk usage
-df -h
+# Monitor backend processes
+pm2 monit
+
+# Manual service management
+sudo systemctl restart nginx    # Restart web server
+pm2 restart ark-backend        # Restart backend only
+pm2 logs ark-backend          # View backend logs
+
+# System monitoring
+df -h                         # Check disk usage
+free -h                       # Check memory usage
+htop                         # Process monitor
 ```
 
 ---
@@ -261,15 +272,24 @@ echo "sudo shutdown -h +60" | at now
 
 ## 🌟 **Your Ark is Ready!**
 
-Once deployed on Vast.ai, your sophisticated steganographic ARG platform will be accessible globally with:
+Once deployed on Vast.ai, your complete forensic investigation platform will be accessible globally with:
 
-✅ **12 Pre-filled Challenges** from your technical briefing  
-✅ **6-Phase ARG System** (Bitplane → VM → GPG → Network → Archaeology → Final Assembly)  
-✅ **Challenge Management** for collaborative puzzle-solving  
-✅ **Agent Dashboard** for AI orchestration  
-✅ **Matrix-themed UI** with full responsiveness  
-✅ **Demo Authentication** ready for backend integration  
+✅ **Real Agent Orchestration** - File analysis, steganography, cryptography, intelligence agents  
+✅ **Full Backend API** - Complete Node.js/Express server with SQLite database  
+✅ **Authentication System** - JWT-based login with role-based access control  
+✅ **File Upload & Analysis** - Real-time forensic analysis with entropy calculation  
+✅ **Investigation Management** - Collaborative case management and evidence tracking  
+✅ **WebSocket Updates** - Real-time progress tracking and notifications  
+✅ **Security Features** - Rate limiting, CORS protection, input validation  
+✅ **Professional UI** - Matrix-themed responsive interface  
+✅ **Production Ready** - PM2 process management, Nginx proxy, monitoring tools  
 
 **Access your live application at**: `http://[YOUR_VAST_INSTANCE_IP]`
 
-Happy puzzle solving! 🧩✨
+**Full Stack Endpoints:**
+- Frontend: `http://[IP]`
+- Backend API: `http://[IP]/api`
+- WebSocket: `ws://[IP]/ws`
+- Health Check: `http://[IP]/health`
+
+Ready for serious forensic investigation! 🔍🛡️

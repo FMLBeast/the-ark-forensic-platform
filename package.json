@@ -6,12 +6,12 @@
   "description": "The Ark - Modern Forensic Investigation Platform",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc && vite build",
+    "build": "npx tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "type-check": "tsc --noEmit"
+    "type-check": "npx tsc --noEmit"
   },
   "dependencies": {
     "react": "^18.2.0",

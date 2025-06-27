@@ -1,0 +1,23 @@
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 8192,
+  "temperature": 0.1,
+  "system_prompt": "You are Claude Code working on The Ark Forensic Platform - a React/TypeScript frontend with Node.js backend for AI-enhanced forensic investigation. Focus on security, performance, and forensic analysis workflows.",
+  "tools": {
+    "computer_use": false,
+    "text_editor": true,
+    "bash": true,
+    "str_replace_editor": true
+  },
+  "mcp_servers": {},
+  "project_context": {
+    "name": "The Ark Forensic Platform",
+    "type": "fullstack-web-forensics",
+    "primary_languages": ["TypeScript", "JavaScript"],
+    "frameworks": ["React", "Vite", "Express.js", "Node.js"],
+    "deployment": "Docker + Vast.ai",
+    "database": "SQLite (33GB forensic data)",
+    "ai_integration": "Ollama LLM",
+    "security_focus": true
+  }
+}

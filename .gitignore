@@ -135,6 +135,25 @@ backend/node_modules/
 *.log
 .cache/
 
+# Claude Code specific
+.claude/
+.claude-history
+
+# AI model files (too large for git)
+models/
+*.gguf
+*.bin
+
+# Forensic data (too large and sensitive)
+data/
+forensic-data/
+extracted_fragments/
+
 # Deployment artifacts
 *.zip
 deployment-*.zip
+*.tar.gz
+deployment-logs/
+
+# Docker volumes and temp files
+docker-data/

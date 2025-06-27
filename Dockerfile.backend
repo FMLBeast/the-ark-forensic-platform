@@ -1,39 +1,68 @@
-# The Ark - Backend Dockerfile
-FROM node:18-alpine
+# The Ark Backend - Production Dockerfile
+FROM node:18-alpine AS base
 
-# Install system dependencies for forensic tools
+# Install system dependencies and forensic tools
 RUN apk add --no-cache \
     sqlite \
     curl \
+    wget \
+    git \
+    python3 \
+    py3-pip \
+    build-base \
     file \
     exiftool \
+    binutils \
     && rm -rf /var/cache/apk/*
 
 # Create app directory
 WORKDIR /app
 
-# Copy backend package files
-COPY backend/package*.json ./backend/
+# Copy package files
+COPY backend/package*.json ./
 
-# Install dependencies
-RUN cd backend && npm ci --omit=dev
+# Install dependencies with production optimization
+RUN npm ci --only=production && npm cache clean --force
 
-# Copy backend source code
-COPY backend/src ./backend/src
-COPY backend/.env.example ./backend/.env
+# Copy application code
+COPY backend/src ./src
 
-# Create necessary directories
-RUN mkdir -p data uploads logs
+# Create necessary directories with proper structure
+RUN mkdir -p data uploads logs temp && \
+    chmod 755 data uploads logs temp
 
-# Set permissions
-RUN chmod 755 data uploads logs
+# Copy environment template if no .env exists
+COPY backend/.env* ./ 2>/dev/null || true
+
+# Create default environment if none exists
+RUN if [ ! -f .env ]; then \
+        echo "NODE_ENV=production" > .env && \
+        echo "PORT=3000" >> .env && \
+        echo "HOST=0.0.0.0" >> .env && \
+        echo "DB_PATH=/app/data/ark.db" >> .env && \
+        echo "UPLOAD_PATH=/app/uploads" >> .env; \
+    fi
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S arkuser && \
+    adduser -S arkuser -u 1001
+
+# Set proper ownership
+RUN chown -R arkuser:arkuser /app
+
+# Switch to non-root user
+USER arkuser
+
+# Health check with better error handling
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
 
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+# Optimize Node.js for production
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
-# Start the backend
-CMD ["node", "backend/src/app.js"]
+# Start application with process manager-like behavior
+CMD ["node", "--enable-source-maps", "src/app.js"]

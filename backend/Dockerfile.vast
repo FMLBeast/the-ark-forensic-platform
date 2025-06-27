@@ -1,0 +1,195 @@
+# Vast.ai optimized Dockerfile for The Ark Backend with Ollama integration
+FROM node:18-slim
+
+# Install system dependencies for forensic analysis
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    python3 \
+    python3-pip \
+    build-essential \
+    sqlite3 \
+    file \
+    exiftool \
+    binutils \
+    hexdump \
+    xxd \
+    strings \
+    steghide \
+    zsteg \
+    stegsolve \
+    foremost \
+    binwalk \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install additional forensic tools
+RUN pip3 install stegano pillow numpy scipy matplotlib
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies with production optimizations
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/uploads /app/temp
+
+# Create Ollama integration service
+COPY <<EOF /app/src/services/ollama/client.js
+import fetch from 'node-fetch';
+
+class OllamaClient {
+  constructor() {
+    this.baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    this.model = process.env.OLLAMA_MODEL || 'codellama:7b-instruct';
+    this.timeout = parseInt(process.env.OLLAMA_TIMEOUT) || 120000;
+  }
+
+  async isAvailable() {
+    try {
+      const response = await fetch(\`\${this.baseUrl}/api/tags\`, {
+        timeout: 5000
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('Ollama not available:', error.message);
+      return false;
+    }
+  }
+
+  async generateResponse(prompt, context = {}) {
+    try {
+      const response = await fetch(\`\${this.baseUrl}/api/generate\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: this.model,
+          prompt: prompt,
+          context: context,
+          stream: false,
+          options: {
+            temperature: 0.1,
+            top_p: 0.9,
+            max_tokens: 2048
+          }
+        }),
+        timeout: this.timeout
+      });
+
+      if (!response.ok) {
+        throw new Error(\`Ollama API error: \${response.status}\`);
+      }
+
+      const data = await response.json();
+      return {
+        success: true,
+        response: data.response,
+        context: data.context,
+        model: this.model,
+        done: data.done
+      };
+    } catch (error) {
+      console.error('Ollama generation error:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async analyzeForensicData(analysisType, data) {
+    const prompts = {
+      file_analysis: \`Analyze this forensic file data and provide insights:
+File: \${data.filename}
+Size: \${data.size} bytes
+Entropy: \${data.entropy}
+Type: \${data.file_type}
+Suspicious indicators: \${data.suspicious_indicators?.join(', ') || 'none'}
+
+Provide a detailed analysis including:
+1. Risk assessment (Low/Medium/High)
+2. Potential threats or anomalies
+3. Recommended next steps
+4. Technical explanation of findings\`,
+
+      string_analysis: \`Analyze these extracted strings for forensic significance:
+Strings: \${data.strings?.slice(0, 10).map(s => s.string_content).join('\\n') || 'none'}
+File: \${data.filename}
+
+Determine:
+1. Suspicious patterns or keywords
+2. Potential malware indicators
+3. Hidden information or obfuscation
+4. Relevance to investigation\`,
+
+      xor_analysis: \`Analyze XOR encryption patterns:
+XOR attempts: \${data.xor_attempts}
+Successful decryptions: \${data.successful_xor}
+Key patterns: \${data.xor_keys?.join(', ') || 'none'}
+
+Provide:
+1. Encryption strength assessment
+2. Key pattern analysis
+3. Potential plaintext content type
+4. Decryption recommendations\`,
+
+      steganography: \`Analyze steganographic findings:
+Method: \${data.method}
+Extracted content: \${data.extracted_content}
+Confidence: \${data.confidence}
+
+Evaluate:
+1. Steganographic technique sophistication
+2. Content significance
+3. Evasion methods used
+4. Investigation impact\`
+    };
+
+    const prompt = prompts[analysisType] || \`Analyze this forensic data: \${JSON.stringify(data, null, 2)}\`;
+    return await this.generateResponse(prompt);
+  }
+
+  async synthesizeInvestigation(results) {
+    const prompt = \`As a forensic investigator, synthesize these analysis results into a comprehensive report:
+
+Results Summary:
+\${results.map(r => \`- \${r.type}: \${r.summary}\`).join('\\n')}
+
+Provide:
+1. Executive Summary
+2. Key Findings
+3. Risk Assessment
+4. Evidence Correlation
+5. Investigation Recommendations
+6. Technical Details\`;
+
+    return await this.generateResponse(prompt);
+  }
+}
+
+export default new OllamaClient();
+EOF
+
+# Set permissions
+RUN chown -R node:node /app
+USER node
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+# Expose port
+EXPOSE 3001
+
+# Start command with GPU optimization flags
+CMD ["node", "--max-old-space-size=4096", "--experimental-worker", "src/app.js"]

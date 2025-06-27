@@ -18,6 +18,8 @@ import forensicsRoutes from './routes/forensics.js';
 import collaborationRoutes from './routes/collaboration.js';
 import filesRoutes from './routes/files.js';
 import systemRoutes from './routes/system.js';
+import forensicRoutes from './routes/forensic.js';
+import graphRoutes from './routes/graph.js';
 
 const app = express();
 
@@ -88,6 +90,8 @@ app.use('/api/forensics', forensicsRoutes);
 app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/forensic', forensicRoutes);
+app.use('/api/graph', graphRoutes);
 
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));

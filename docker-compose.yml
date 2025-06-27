@@ -11,21 +11,31 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - HOST=0.0.0.0
       - DB_PATH=/app/data/ark.db
       - UPLOAD_PATH=/app/uploads
-      - ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://host.docker.internal
+      - SESSION_SECRET=${SESSION_SECRET:-$(openssl rand -hex 32)}
+      - JWT_SECRET=${JWT_SECRET:-$(openssl rand -hex 32)}
+      - ALLOWED_ORIGINS=http://localhost,http://127.0.0.1,http://host.docker.internal,http://ark-frontend
+      - FORENSIC_DB_PATH=${FORENSIC_DB_PATH:-}
+      - ENABLE_FORENSIC_ANALYSIS=${ENABLE_FORENSIC_ANALYSIS:-false}
     volumes:
-      - ./data:/app/data
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
+      - ark-data:/app/data
+      - ark-uploads:/app/uploads
+      - ark-logs:/app/logs
+      # Mount forensic database if provided
+      - ${FORENSIC_DB_PATH:-/dev/null}:${FORENSIC_DB_PATH:-/dev/null}:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
     networks:
       - ark-network
+    depends_on:
+      - ark-database
 
   ark-frontend:
     build:
@@ -33,20 +43,58 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: ark-frontend
     ports:
-      - "80:80"
+      - "${FRONTEND_PORT:-80}:80"
     environment:
       - NGINX_BACKEND_URL=http://ark-backend:3000
     depends_on:
-      - ark-backend
+      ark-backend:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - ark-network
+
+  # Optional: SQLite database with persistent storage
+  ark-database:
+    image: alpine:latest
+    container_name: ark-database
+    command: |
+      sh -c '
+        echo "Database container for persistent storage"
+        mkdir -p /data
+        tail -f /dev/null
+      '
+    volumes:
+      - ark-data:/data
     networks:
       - ark-network
 
 networks:
   ark-network:
     driver: bridge
+    name: ark-network
 
 volumes:
   ark-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data
   ark-uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/uploads
   ark-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/logs

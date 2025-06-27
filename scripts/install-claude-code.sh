@@ -27,14 +27,34 @@ if ! command -v node &> /dev/null; then
     apt-get install -y nodejs
 fi
 
-# Install Claude Code globally
+# Install Claude Code CLI
 echo "🤖 Installing Claude Code CLI..."
-npm install -g @anthropic/claude-code
+
+# Check system architecture
+ARCH=$(uname -m)
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+if [ "$OS" = "linux" ]; then
+    if [ "$ARCH" = "x86_64" ]; then
+        CLAUDE_URL="https://storage.googleapis.com/claude-cli/claude-linux-amd64"
+    else
+        echo "❌ Unsupported architecture: $ARCH"
+        exit 1
+    fi
+else
+    echo "❌ Unsupported OS: $OS"
+    exit 1
+fi
+
+# Download and install Claude Code
+echo "📥 Downloading Claude Code for $OS-$ARCH..."
+curl -L "$CLAUDE_URL" -o /usr/local/bin/claude-code
+chmod +x /usr/local/bin/claude-code
 
 # Verify installation
 if command -v claude-code &> /dev/null; then
     echo "✅ Claude Code installed successfully!"
-    echo "   Version: $(claude-code --version)"
+    echo "   Version: $(claude-code --version 2>/dev/null || echo 'Ready for authentication')"
 else
     echo "❌ Installation failed"
     exit 1

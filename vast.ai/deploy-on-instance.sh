@@ -90,7 +90,7 @@ fi
 # Create Docker Compose file for Vast.ai deployment
 cd "$REPO_DIR"
 cat > docker-compose.vast.yml << 'EOF'
-version: '3.8'
+# Docker Compose for Vast.ai deployment
 
 services:
   # Ollama LLM Service (RTX 5000 Ada optimized)
@@ -100,7 +100,6 @@ services:
     restart: unless-stopped
     ports:
       - "11434:11434"
-      - "71434:11434"  # Vast.ai external mapping
     volumes:
       - ollama_data:/root/.ollama
       - /root/hunter_server/data:/data
@@ -134,7 +133,6 @@ services:
     working_dir: /app
     ports:
       - "3001:3001"
-      - "73001:3001"  # Vast.ai external mapping
     volumes:
       - /root/hunter_server/data:/app/data
       - ./backend:/app
@@ -169,7 +167,6 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "70080:80"  # Vast.ai external mapping
     volumes:
       - ./frontend/dist:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/nginx.conf
@@ -188,7 +185,6 @@ services:
     restart: unless-stopped
     ports:
       - "9090:9090"
-      - "79090:9090"  # Vast.ai external mapping
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
@@ -621,16 +617,16 @@ echo ""
 echo "🎉 Deployment Summary"
 echo "===================="
 echo "Instance IP: $INSTANCE_IP"
-echo "Backend: $BACKEND_STATUS (Port 3001 -> 73001)"
-echo "Frontend: $FRONTEND_STATUS (Port 80 -> 70080)" 
-echo "Ollama: $OLLAMA_STATUS models loaded (Port 11434 -> 71434)"
-echo "Monitoring: Available (Port 9090 -> 79090)"
+echo "Backend: $BACKEND_STATUS (Port 3001)"
+echo "Frontend: $FRONTEND_STATUS (Port 80)" 
+echo "Ollama: $OLLAMA_STATUS models loaded (Port 11434)"
+echo "Monitoring: Available (Port 9090)"
 echo ""
 echo "🌐 Access URLs:"
-echo "Frontend: http://$INSTANCE_IP:70080"
-echo "Backend API: http://$INSTANCE_IP:73001"
-echo "Ollama API: http://$INSTANCE_IP:71434"
-echo "Monitoring: http://$INSTANCE_IP:79090"
+echo "Frontend: http://$INSTANCE_IP:80"
+echo "Backend API: http://$INSTANCE_IP:3001"
+echo "Ollama API: http://$INSTANCE_IP:11434"
+echo "Monitoring: http://$INSTANCE_IP:9090"
 echo ""
 echo "✅ The Ark Forensic Platform deployed successfully!"
 echo "🗄️  Database: /root/hunter_server/data/stego_results.db"

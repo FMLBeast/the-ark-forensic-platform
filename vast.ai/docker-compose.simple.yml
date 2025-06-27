@@ -1,0 +1,99 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ark-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - /root/hunter_server/data:/data
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_NUM_PARALLEL=8
+      - OLLAMA_MAX_LOADED_MODELS=4
+      - OLLAMA_FLASH_ATTENTION=1
+      - OLLAMA_GPU_LAYERS=40
+      - OLLAMA_CONTEXT_SIZE=8192
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  backend:
+    image: node:18-slim
+    container_name: ark-backend
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "3001:3001"
+    volumes:
+      - /root/hunter_server/data:/app/data
+      - ./backend:/app
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - FORENSIC_DB_PATH=/app/data/stego_results.db
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=codellama:13b-instruct
+      - ENABLE_OLLAMA_ORCHESTRATION=true
+      - GPU_ACCELERATION=true
+      - LOG_LEVEL=info
+    command: >
+      sh -c "
+        apt-get update && 
+        apt-get install -y sqlite3 curl &&
+        npm install &&
+        node src/app.js
+      "
+    depends_on:
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: nginx:alpine
+    container_name: ark-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ark-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+
+volumes:
+  ollama_data:
+    driver: local
